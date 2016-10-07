@@ -17,6 +17,6 @@ print 'Loaded summaries for', len(summaries), 'users'
 print sum(map(len, summaries.values())), 'projects'
 
 with open('user_project_summaries.json', 'w') as o:
-    ujson.dump(summaries, o)
+    ujson.dump(summaries, o, indent=2)
 
 
