@@ -18,6 +18,6 @@ All results are accuracies with 3-fold cross-validation.
 
 ### Code features only
 
-** fill in as before **
+**fill in as before**
  
 
