@@ -10,14 +10,62 @@
 
 ## Experiments
 
-All results are accuracies with 3-fold cross-validation.
+Chance is 0.52772073922
+### All features 
+All features KNN Score:  0.753849798626
+All features KNN f1 score 0.7040729137 
+
+All features Logistic Regression Score:  0.765103056148
+All features Logistic f1 score 0.731482735274
+
+All features KNN Score:  0.746624022743
+All features KNN f1 score 0.695862363145 
+
+All features Logistic Regression Score:  0.757640369581
+All features Logistic f1 score 0.719187482844
+
+All features KNN Score:  0.751658767773
+All features KNN f1 score 0.698764012647 
+
+All features Logistic Regression Score:  0.752488151659
+All features Logistic f1 score 0.715201090661
 
 ### Time features only
+Time features KNN Score:  0.787254205165
+Time features KNN f1 score 0.750347511815 
 
-**fill in average 3-fold accuracy using the best combinations of features, with the best classifier and normalization settings**
+Time features Logistic Regression Score:  0.527718550107
+Time features Logistic f1 score 0.0
 
+Time features KNN Score:  0.767945984364
+Time features KNN f1 score 0.728783054133 
+
+Time features Logistic Regression Score:  0.527718550107
+Time features Logistic f1 score 0.0
+
+Time features KNN Score:  0.781161137441
+Time features KNN f1 score 0.743436588415 
+
+Time features Logistic Regression Score:  0.527725118483
+Time features Logistic f1 score 0.0
 ### Code features only
 
-**fill in as before**
- 
+Code features KNN Score: 0.661809997631
+Code features KNN f1 score 0.570741241919 
+
+Code features Logistic Regression Score:  0.673300165837
+Code features Logistic f1 score 0.63412045635
+
+Code features KNN Score:  0.656479507226
+Code features KNN f1 score 0.565477974228 
+
+Code features Logistic Regression Score:  0.66583747927
+Code features Logistic f1 score 0.621189740835
+
+Code features KNN Score:  0.657701421801
+Code features KNN f1 score 0.568096875467 
+
+Code features Logistic Regression Score:  0.66528436019
+Code features Logistic f1 score 0.625082946251
+
 
