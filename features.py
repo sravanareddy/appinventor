@@ -259,3 +259,46 @@ def aveNumMediaAssets(projects):
     for project in projects:
         count += len(project['*Media Assets'])
     return count / float(len(projects))
+
+def averageNumStrings(projects): #counts unique strings
+    numScreens = getNumScreens(projects)
+    s = 0
+    i = 0
+    while i < len(projects):
+        for j in range(numScreens[i]):
+            screenNum = "Screen"+ str(j + 1)
+            if screenNum in projects[i].keys():
+                if  not isinstance(projects[i][screenNum]['Components'], unicode):
+                     if not isinstance(projects[i][screenNum]['Components']['Strings'],unicode):
+                        s += len(projects[i][screenNum]['Components']['Strings'])
+        i+=1
+    return s / float(len(projects))
+
+def averageNumTypeComponents(projects): #ignores duplicate components, tests variety 
+    numScreens = getNumScreens(projects)
+    numC = 0
+    i = 0
+    while i < len(projects):
+        for j in range(numScreens[i]):
+            screenNum = "Screen"+ str(j + 1)
+            if screenNum in projects[i].keys():
+                if  not isinstance(projects[i][screenNum]['Components'], unicode):
+#                    if 'Number of Components' in projects[i][screenNum]['Components'].keys():
+                    if not isinstance(projects[i][screenNum]['Components']['Type and Frequency'],unicode):
+                       numC += len(projects[i][screenNum]['Components']['Type and Frequency'])
+        i+=1
+    return numC / float(len(projects))
+    
+def averageNumProcedures(projects): 
+    numScreens = getNumScreens(projects)
+    numProc = 0
+    i = 0
+    while i < len(projects):
+        for j in range(numScreens[i]):
+            screenNum = "Screen"+ str(j + 1)
+            if screenNum in projects[i].keys():
+                if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
+                    if  not isinstance(projects[i][screenNum]['Blocks']['Active Blocks'],unicode):
+                        numProc += len(projects[i][screenNum]['Blocks']['Active Blocks']['Procedure Names'])
+        i+=1
+    return numProc / float(len(projects))
