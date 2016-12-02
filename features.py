@@ -48,6 +48,13 @@ def projectsPerUserPeriod(projects, bins=10):
     return hist
 
 ##CODE FEATURES
+def getScreenNames(projects): 
+    screenNames = []
+    for project in projects: 
+        projectScreens = [key for key in project.keys() if '*' not in key]
+        screenNames.append(projectScreens)
+    return screenNames
+
 def getNumScreens(projects):
     numScreens = []
     for project in projects:
@@ -58,14 +65,15 @@ def getAllVariables(projects):
     '''returns a list with 0th element being the average number of local variables, the 1st element
     being the average number of global variables, and the 2nd element being the average number
     of variables in a project'''
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
+
     gv_count = 0
     lv_count = 0
     i = 0
     variables = []
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
+#             print screenNum
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     if projects[i][screenNum]['Blocks']['Active Blocks'] != 'NO ACTIVE BLOCKS':
@@ -75,16 +83,15 @@ def getAllVariables(projects):
     variables.append(lv_count)
     variables.append(gv_count)
     variables.append(lv_count + gv_count)
-
     return [v/float(len(projects)) for v in variables]
 
+
 def averageNumBlocks(projects):
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     totalBlocks = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     if  not isinstance(projects[i][screenNum]['Blocks']['Active Blocks'],unicode):
@@ -93,12 +100,11 @@ def averageNumBlocks(projects):
     return totalBlocks / float(len(projects))
 
 def getAverageTypeTLBlocks(projects):
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     tl_count = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     tl_count += len(projects[i][screenNum]['Blocks']['*Top Level Blocks'].keys())
@@ -106,12 +112,11 @@ def getAverageTypeTLBlocks(projects):
     return tl_count / float(len(projects))
 
 def getAverageOrphanBlocks(projects):
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     tl_count = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     if projects[i][screenNum]['Blocks']['Orphan Blocks'] != "NO ORPHAN BLOCKS":
@@ -151,6 +156,8 @@ def decileNumScreens(projects):
 
 def decileTypesTopLevelBlocks(projects):
     '''measures how many types of TLblocks per project in each decile '''
+    numScreens = getScreenNames(projects)
+
     all_deciles = []
     for i in range(10):
         all_deciles.append([])
@@ -159,14 +166,12 @@ def decileTypesTopLevelBlocks(projects):
     last = int(projects[len(projects)-1]['**created'])
     decile_width = ((last - first) / (86400 * 1000.)) / 10
 
-
+    i= 0
     for project in projects:
         numTL = 0
-        numScreens = project['*Number of Screens']
         daysElapsed = (project['**created']-first)/(86400 * 1000.)
 
-        for j in range(numScreens):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in project.keys():
                 if  not isinstance(project[screenNum]['Blocks'], unicode):
                     numTL = len(project[screenNum]['Blocks']['*Top Level Blocks'].keys())
@@ -180,6 +185,7 @@ def decileTypesTopLevelBlocks(projects):
                     all_deciles[9].insert(0,numTL)
                 else:
                     all_deciles[index].insert(0,numTL)
+        i+=1
     for i in range(10):
         if len(all_deciles[i]) == 0:
             all_deciles[i] = 0
@@ -196,12 +202,13 @@ def decileOrphanBlocks(projects):
     last = int(projects[len(projects)-1]['**created'])
     decile_width = ((last - first) / (86400 * 1000.)) / 10
 
+    i = 0 
+    numScreens = getScreenNames(projects)
+
     for project in projects:
         numOrphan =0
-        numScreens = project['*Number of Screens']
         daysElapsed = (project['**created']-first)/(86400 * 1000.)
-        for j in range(numScreens):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in project.keys():
                 if  not isinstance(project[screenNum]['Blocks'], unicode):
                     if project[screenNum]['Blocks']['Orphan Blocks'] != "NO ORPHAN BLOCKS":
@@ -216,7 +223,7 @@ def decileOrphanBlocks(projects):
                         all_deciles[9].insert(0,numOrphan)
                     else:
                         all_deciles[index].insert(0,numOrphan)
-
+    	i += 1
     for i in range(10):
         if len(all_deciles[i]) == 0:
             all_deciles[i] = 0
@@ -225,12 +232,11 @@ def decileOrphanBlocks(projects):
     return all_deciles
 
 def getAverageNumTLBlocks(projects):
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     count = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     types = projects[i][screenNum]['Blocks']['*Top Level Blocks'].keys()
@@ -240,12 +246,11 @@ def getAverageNumTLBlocks(projects):
     return count / float(len(projects))
 
 def averageNumComponents(projects):
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     numC = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Components'], unicode):
 #                    if 'Number of Components' in projects[i][screenNum]['Components'].keys():
@@ -261,12 +266,11 @@ def aveNumMediaAssets(projects):
     return count / float(len(projects))
 
 def averageNumStrings(projects): #counts unique strings
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     s = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Components'], unicode):
                      if not isinstance(projects[i][screenNum]['Components']['Strings'],unicode):
@@ -275,12 +279,11 @@ def averageNumStrings(projects): #counts unique strings
     return s / float(len(projects))
 
 def averageNumTypeComponents(projects): #ignores duplicate components, tests variety 
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     numC = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Components'], unicode):
 #                    if 'Number of Components' in projects[i][screenNum]['Components'].keys():
@@ -288,14 +291,13 @@ def averageNumTypeComponents(projects): #ignores duplicate components, tests var
                        numC += len(projects[i][screenNum]['Components']['Type and Frequency'])
         i+=1
     return numC / float(len(projects))
-    
+
 def averageNumProcedures(projects): 
-    numScreens = getNumScreens(projects)
+    numScreens = getScreenNames(projects)
     numProc = 0
     i = 0
     while i < len(projects):
-        for j in range(numScreens[i]):
-            screenNum = "Screen"+ str(j + 1)
+        for screenNum in numScreens[i]:
             if screenNum in projects[i].keys():
                 if  not isinstance(projects[i][screenNum]['Blocks'], unicode):
                     if  not isinstance(projects[i][screenNum]['Blocks']['Active Blocks'],unicode):
