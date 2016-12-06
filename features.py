@@ -304,3 +304,35 @@ def averageNumProcedures(projects):
                         numProc += len(projects[i][screenNum]['Blocks']['Active Blocks']['Procedure Names'])
         i+=1
     return numProc / float(len(projects))
+
+    def createKeywordDict(projects): #ignores duplicate components, tests variety 
+        numScreens = getScreenNames(projects)
+        keywordDict = {}
+        i = 0
+        while i < len(projects):
+            for screenNum in numScreens[i]:
+                if screenNum in projects[i].keys():
+                    if  not isinstance(projects[i][screenNum]['Components'], unicode):
+    #                    if 'Number of Components' in projects[i][screenNum]['Components'].keys():
+                        if not isinstance(projects[i][screenNum]['Components']['Type and Frequency'],unicode):
+                            for key in projects[i][screenNum]['Components']['Type and Frequency']:
+                                if key in keywordDict:
+                                    keywordDict[key] = keywordDict[key] + projects[i][screenNum]['Components']['Type and Frequency'][key]
+                                else: 
+                                    keywordDict[key] = projects[i][screenNum]['Components']['Type and Frequency'][key]
+            i+=1
+        
+        return keywordDict
+
+    def countKeywords(projects):
+        keywordDict = createKeywordDict(projects)
+        numBlocks = averageNumBlocks(projects)
+        if numBlocks == 0.0: numBlocks = 0.0001
+        keywordCount = 0
+        
+        for entry in keywordDict: 
+            keywordCount += keywordDict[entry]
+        try: 
+            return (keywordCount/len(projects))/ float(numBlocks) #average number of keywords / average number of blocks
+        except ZeroDivisionError: 
+            print keywordCount, len(projects), numBlocks
