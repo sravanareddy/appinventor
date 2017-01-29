@@ -13,3 +13,5 @@ Issues:
 -I'm still not getting the right values when I run the code, so maybe we can look at that again on Thursday.
 
 -there are 139 users who only had tutorials...so we probably should totally filter them out 
+
+- The scores went down for me after the filtering (but my scores are pretty off)
