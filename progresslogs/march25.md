@@ -1,12 +1,10 @@
 (Sravana's fiddling)
 
 1. Moved language labeling code to `namestrings_to_langs.py`. 
-Re-ran `langid` in a more cautious fashion: 
-inferring language of each token, combining log probabilities, and taking highest,
-rather than concatenating tokens and classifying the result, 
-which is problematic if the classifier uses bigrams.
-Ignored Latin from candidates.
+Ignored Latin from candidates, using next-best language instead.
 Wrote new `user_inferredlangs.json`.
+
+735 users were ignored because of fewer than 50 eligible tokens (variable names and strings).
 
 
    

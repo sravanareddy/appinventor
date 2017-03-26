@@ -50,22 +50,12 @@ def get_user_langs(summaryfile):
                 ignored.add(userid)
                 print '*',
             else:
-                print '.',
-                types = Counter(tokens)
-                languages = defaultdict(int)  # total log prob on each token
-                for string in types:
-                    lang, logprob = langid.classify(string)
-                    languages[lang] += logprob*types[string]
-
-                if 'la' in languages:
-                    languages.pop('la')  # get rid of Latin
-
-                # get argmax
-                user_langs[userid] = max(languages, key=lambda x:x[1])[0]
+                langlist = langid.rank(' '.join(tokens))
+                user_langs[userid] = langlist[0][0] if langlist[0][0]!='la' else langlist[1][0]
+                print user_langs[userid],
 
         print ctr
         ctr+=1
-
 
     print 'Ignored', len(ignored), 'users with too few tokens'
     return user_langs
@@ -73,4 +63,4 @@ def get_user_langs(summaryfile):
 if __name__=='__main__':
     user_langs = get_user_langs('user_project_summaries.json')
     with open('user_inferredlangs.json', 'w') as o:
-        ujson.dump(user_langs, o)
+        ujson.dump(user_langs, o, indent=0)
