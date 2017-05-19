@@ -1,6 +1,7 @@
 #features.py
 import datetime
 import numpy
+from collections import Counter
 
 ##TIME FEATURES
 def timediff(t1, t2):
@@ -319,10 +320,10 @@ def getBlocksProject(project, block_set):
     block_dict = Counter()
     for screenName in project:
         if '*' not in screenName and 'Active Blocks' in project[screenName]['Blocks'] and 'Types' in project[screenName]['Blocks']['Active Blocks']:
-            blocks = projects[i][screenName]['Blocks']['Active Blocks']['Types']
+            blocks = project[screenName]['Blocks']['Active Blocks']['Types']
             for block in blocks:
                 if block in block_set:
-                    block_dict[block] += projects[screenName]['Blocks']['Active Blocks']['Types'][block]
+                    block_dict[block] += project[screenName]['Blocks']['Active Blocks']['Types'][block]
     return block_dict
 
 def getBlocks(projects, block_set):
