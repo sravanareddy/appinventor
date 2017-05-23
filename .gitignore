@@ -1,4 +1,5 @@
 *~
 .*
-user_project_times.json
+*.json
 *pyc
+paper/
