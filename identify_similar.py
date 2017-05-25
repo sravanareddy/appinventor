@@ -38,7 +38,7 @@ def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k
     G = nx.Graph()
     for i, project1 in enumerate(project_names):
         p = project_vectors[i, :].tolist()[0]
-        neighbors, distances = tree.get_nns_by_vector(p, k, 
+        neighbors, distances = tree.get_nns_by_vector(p, k,
                                                       include_distances=True)
         for ji, j in enumerate(neighbors):
             project2 = ref_project_names[j]
@@ -56,9 +56,9 @@ def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k
         neighbors[project1] = sorted(neighbors[project1].items(), key=lambda x:x[1], reverse=True)
 
     print 'Finished in', time.time()-start, 'seconds'
-    
+
     return neighbors
-    
+
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--build', help='build tree', action="store_true")
@@ -72,9 +72,9 @@ if __name__=='__main__':
     project_vectors = project_vectors.todense()
     project_names = np.array(codecs.open('filtered_project_names.txt', 'r', 'utf8').read().split())
     print 'Loaded data'
-    
+
     if args.build:
-        # build trees from slices                                                                 
+        # build trees from slices
         for sliceindex in range(args.sliceprop):
             slice_project_vectors, slice_project_names = get_slices(project_vectors,
                                                     project_names,
@@ -97,8 +97,8 @@ if __name__=='__main__':
                                                         sliceindex)
             neighbors = compute_neighbors(tree,
                                           ref_project_names,
-                                          test_project_vectors, 
-                                          test_project_names, 
+                                          test_project_vectors,
+                                          test_project_names,
                                           args.k)
             outfile = 'neighbors-{0}-{1}-{2}.json'.format(args.treefile, args.sliceprop, sliceindex)
             with open(outfile, 'w') as o:
