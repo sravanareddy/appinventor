@@ -23,12 +23,11 @@ def plot_confusion_matrix(cm, classes, normed=False, cmap=plt.cm.Blues):
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, '{.2f}'.format(cm[i, j]),
+        plt.text(j, i, '{:.2f}'.format(cm[i, j]),
                  horizontalalignment="center",
                  color="white" if cm[i, j] > thresh else "black")
 
     if normed:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
         plt.title("Normalized confusion matrix")
     else:
         plt.title('Confusion matrix, without normalization')

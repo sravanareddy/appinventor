@@ -24,8 +24,11 @@ def get_average_counts(project_counts, filterSet=None):
     for project in project_counts:
         for key in project_counts[project]:
             if not filterSet or key in filterSet:
-                relative_counts += project_counts[project][key]
+                relative_counts[key] += project_counts[project][key]
     return normalizeDict(relative_counts, len(project_counts))
+
+def get_all_blocks(project_blockcounts):
+    return get_average_counts(project_blockcounts)
 
 def get_math_blocks(project_blockcounts):
     math_set = {'math_divide', 'math_cos', 'math_format_as_decimal',
