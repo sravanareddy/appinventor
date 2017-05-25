@@ -17,8 +17,9 @@ def get_slices(project_vectors, project_names, sliceprop, sliceindex):
     original_numprojects = project_vectors.shape[0]
     slicesize = int(original_numprojects/sliceprop)
     samples = range(sliceindex*slicesize, (sliceindex+1)*slicesize)
-    project_vectors = project_vectors[samples].todense()
+    project_vectors = project_vectors[samples]
     project_names = project_names[samples]
+    print project_vectors.shape
     return project_vectors, project_names
 
 def build_tree(project_vectors, project_names, numtrees, outfile):
@@ -31,18 +32,16 @@ def build_tree(project_vectors, project_names, numtrees, outfile):
     tree.save(outfile)
     print 'Finished in', time.time()-start, 'seconds'
 
-def compute_neighbors(treefile, project_vectors, project_names, k):
+def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k):
     """Compute k nearest neighbors for each vector in project_vectors"""
     start = time.time()
     G = nx.Graph()
-    tree = AnnoyIndex(project_vectors.shape[1])
-    tree.load(treefile+'.ann')
     for i, project1 in enumerate(project_names):
         p = project_vectors[i, :].tolist()[0]
         neighbors, distances = tree.get_nns_by_vector(p, k, 
                                                       include_distances=True)
         for ji, j in enumerate(neighbors):
-            project2 = project_names[j]
+            project2 = ref_project_names[j]
             if project1[:5]!=project2[:5] and distances[ji]<0.3: # ignore if projects are from the same user
                 G.add_edge(project1, project2, weight=1-distances[ji])
 
@@ -70,25 +69,38 @@ if __name__=='__main__':
     args = parser.parse_args()
 
     project_vectors, _ = load_svmlight_file('filtered_project_vectors.svml', dtype=np.int16)
+    project_vectors = project_vectors.todense()
     project_names = np.array(codecs.open('filtered_project_names.txt', 'r', 'utf8').read().split())
-
+    print 'Loaded data'
+    
     if args.build:
         # build trees from slices                                                                 
         for sliceindex in range(args.sliceprop):
-            project_vectors, project_names = get_slices(project_vectors,
+            slice_project_vectors, slice_project_names = get_slices(project_vectors,
                                                     project_names,
                                                     args.sliceprop,
                                                     sliceindex)
             outfile = 'tree{0}-{1}-{2}.ann'.format(args.numtrees, args.sliceprop, sliceindex)
-            build_tree(project_vectors, project_names, args.numtrees, outfile)
+            build_tree(slice_project_vectors, slice_project_names, args.numtrees, outfile)
     else:
+        tree = AnnoyIndex(project_vectors.shape[1])
+        tree.load(args.treefile+'.ann')
+        print 'Loaded tree'
         for sliceindex in range(args.sliceprop):
-            project_vectors, project_names = get_slices(project_vectors,
+            _, ref_project_names = get_slices(project_vectors,
+                                              project_names,
+                                              int(args.treefile.split('-')[1]),
+                                              int(args.treefile.split('-')[2]))
+            test_project_vectors, test_project_names = get_slices(project_vectors,
                                                         project_names,
                                                         args.sliceprop,
                                                         sliceindex)
-            neighbors = compute_neighbors(args.treefile, project_vectors, project_names, args.k)
-            outfile = 'neighbors-{0}-{1}-{2}.json'.format(args.treefile, sliceprop, sliceindex)
+            neighbors = compute_neighbors(tree,
+                                          ref_project_names,
+                                          test_project_vectors, 
+                                          test_project_names, 
+                                          args.k)
+            outfile = 'neighbors-{0}-{1}-{2}.json'.format(args.treefile, args.sliceprop, sliceindex)
             with open(outfile, 'w') as o:
                 ujson.dump(neighbors, o, indent=3)
             print sliceindex
