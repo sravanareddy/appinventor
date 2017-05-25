@@ -10,9 +10,6 @@ from sklearn.datasets import load_svmlight_file
 import argparse
 import codecs
 
-def jaccardsim(v1, v2):
-    return np.sum(np.minimum(v1, v2))/np.sum(np.maximum(v1, v2))
-
 def get_slices(project_vectors, project_names, sliceprop, sliceindex):
     original_numprojects = project_vectors.shape[0]
     slicesize = int(original_numprojects/sliceprop)
@@ -42,8 +39,8 @@ def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k
                                                       include_distances=True)
         for ji, j in enumerate(neighbors):
             project2 = ref_project_names[j]
-            if project1[:5]!=project2[:5] and distances[ji]<0.3: # ignore if projects are from the same user
-                G.add_edge(project1, project2, weight=1-distances[ji])
+            if project1[:5]!=project2[:5]: # ignore if projects are from the same user
+                G.add_edge(project1, project2, weight=distances[ji])
 
     neighbors = {}
     for project1 in G.nodes():
