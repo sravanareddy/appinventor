@@ -50,7 +50,7 @@ def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k
                 neighbors[project1][project2] = G[project1][project2]['weight']
     # sort
     for project1 in neighbors:
-        neighbors[project1] = sorted(neighbors[project1].items(), key=lambda x:x[1], reverse=True)
+        neighbors[project1] = sorted(neighbors[project1].items(), key=lambda x:x[1])
 
     print 'Finished in', time.time()-start, 'seconds'
 
@@ -58,6 +58,7 @@ def compute_neighbors(tree, ref_project_names, project_vectors, project_names, k
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('basefile', help='basename of files')
     parser.add_argument('--build', help='build tree', action="store_true")
     parser.add_argument('sliceprop', help='slice size as a proportion of the data', type=int)
     parser.add_argument('--numtrees', type=int)
@@ -65,9 +66,9 @@ if __name__=='__main__':
     parser.add_argument('--treefile', help='filename with stored tree')
     args = parser.parse_args()
 
-    project_vectors, _ = load_svmlight_file('filtered_project_vectors.svml', dtype=np.int16)
+    project_vectors, _ = load_svmlight_file(args.basefile+'_vectors.svml', dtype=np.int16)
     project_vectors = project_vectors.todense()
-    project_names = np.array(codecs.open('filtered_project_names.txt', 'r', 'utf8').read().split())
+    project_names = np.array(codecs.open(args.basefile+'_names.txt', 'r', 'utf8').read().split())
     print 'Loaded data'
 
     if args.build:
@@ -77,27 +78,27 @@ if __name__=='__main__':
                                                     project_names,
                                                     args.sliceprop,
                                                     sliceindex)
-            outfile = 'tree{0}-{1}-{2}.ann'.format(args.numtrees, args.sliceprop, sliceindex)
+            outfile = args.basefile+'-tree{0}-{1}-{2}.ann'.format(args.numtrees, args.sliceprop, sliceindex)
             build_tree(slice_project_vectors, slice_project_names, args.numtrees, outfile)
     else:
         tree = AnnoyIndex(project_vectors.shape[1])
         tree.load(args.treefile+'.ann')
         print 'Loaded tree'
-        for sliceindex in range(args.sliceprop):
-            _, ref_project_names = get_slices(project_vectors,
-                                              project_names,
-                                              int(args.treefile.split('-')[1]),
-                                              int(args.treefile.split('-')[2]))
+        _, ref_project_names = get_slices(project_vectors,
+                                          project_names,
+                                          int(args.treefile.split('-')[1]),
+                                          int(args.treefile.split('-')[2]))
+        for sliceindex in range(25):
             test_project_vectors, test_project_names = get_slices(project_vectors,
-                                                        project_names,
-                                                        args.sliceprop,
-                                                        sliceindex)
+                                                                  project_names,
+                                                                  args.sliceprop,
+                                                                  sliceindex)
             neighbors = compute_neighbors(tree,
                                           ref_project_names,
                                           test_project_vectors,
                                           test_project_names,
                                           args.k)
-            outfile = 'neighbors-{0}-{1}-{2}.json'.format(args.treefile, args.sliceprop, sliceindex)
+            outfile = 'unfiltered-neighbors-{0}-{1}-{2}.json'.format(args.treefile, args.sliceprop, sliceindex)
             with open(outfile, 'w') as o:
-                ujson.dump(neighbors, o, indent=3)
+                ujson.dump(neighbors, o, indent=1)
             print sliceindex

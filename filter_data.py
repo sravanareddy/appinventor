@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.feature_extraction import DictVectorizer
 import codecs
 from sklearn.datasets import dump_svmlight_file
+import sys
 
 def print_datastats(blockcounts):
     print len(blockcounts), 'users and', sum(map(len, blockcounts.values())), 'projects'
@@ -30,7 +31,8 @@ def vectorize(blockcounts, ):
     print 'Vectorized', project_vectors.shape
     return project_vectors, project_names, vectorizer.vocabulary_,
 
-def main():
+def main(filtertuts):
+    print filtertuts
     # loads pre-computed counts of each active block type per project for every user
     blockcounts = ujson.load(open('user_project_allblockcounts.json'))
     print_datastats(blockcounts)
@@ -39,21 +41,26 @@ def main():
     common_langs = set(['el', 'fr', 'en', 'zh', 'pt', 'ca', 'de', 'ko', 'it', 'th', 'es'])
     blockcounts = {user: blockcounts[user] for user in blockcounts if user in user_inferredlangs and user_inferredlangs[user] in common_langs}
     print_datastats(blockcounts)
-    # load non-tutorials
-    nontutorials = ujson.load(open('user_nontutorial_projects.json'))
-    # filter non-tutorials
-    blockcounts = user_project_filter(blockcounts, nontutorials)
-    print_datastats(blockcounts)
+    if filtertuts:
+        #load non-tutorials
+        nontutorials = ujson.load(open('user_nontutorial_projects.json'))
+        #filter non-tutorials
+        blockcounts = user_project_filter(blockcounts, nontutorials)
+        print_datastats(blockcounts)
     # vectorize
     project_vectors, project_names, vocab = vectorize(blockcounts)
     # store
+    if filtertuts:
+        filename = 'filtered_project'
+    else:
+        filename = 'project'
     dump_svmlight_file(project_vectors,
                        np.zeros(project_vectors.shape[0]),
-                       'filtered_project_vectors.svml')
-    with codecs.open('filtered_project_names.txt', 'w', 'utf8') as o:
+                       filename+'_vectors.svml')
+    with codecs.open(filename+'_names.txt', 'w', 'utf8') as o:
         o.write('\n'.join(project_names))
-    with open('filtered_featuremap.json', 'w') as o:
+    with open(filename+'_featuremap.json', 'w') as o:
         ujson.dump(vocab, o)
 
 if __name__=='__main__':
-    main()
+    main(bool(int(sys.argv[1])))
