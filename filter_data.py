@@ -17,14 +17,15 @@ def user_project_filter(counts, user_project_set):
             filtered_counts[user] = {project: counts[user][project] for project in counts[user] if project in orig}
     return filtered_counts
 
-def vectorize(blockcounts, ):
+def vectorize(blockcounts):
     # pre-compute block-count array for each project
     all_projects = []
     project_names = []
     for user in blockcounts:
         for project in blockcounts[user]:
-            all_projects.append(blockcounts[user][project])
-            project_names.append(user+'-'+project)
+            if sum(blockcounts[user][project].values())>0:
+                all_projects.append(blockcounts[user][project])
+                project_names.append(user+'-'+project)
 
     vectorizer = DictVectorizer()
     project_vectors = vectorizer.fit_transform(all_projects)

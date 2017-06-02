@@ -14,7 +14,7 @@ def find_hubs(filename):
 
         prevfiltered[user1].add(project1name)
 
-        identical = [(project2.split('-', 1), sim) for project2, sim in graph[project1] if sim >= 1]
+        identical = [(project2.split('-', 1), sim) for project2, sim in graph[project1] if sim <= 0]
         if len(identical)>=4 and len(set([user2 for (user2, project2name), sim in identical]))>=4:
             user_hyptutorial_projects[user1].add(project1name)
             for (user2, project2name), _ in identical:

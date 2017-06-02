@@ -78,7 +78,7 @@ if __name__=='__main__':
                                                     project_names,
                                                     args.sliceprop,
                                                     sliceindex)
-            outfile = args.basefile+'-tree{0}-{1}-{2}.ann'.format(args.numtrees, args.sliceprop, sliceindex)
+            outfile = args.basefile+'tree{0}-{1}-{2}.ann'.format(args.numtrees, args.sliceprop, sliceindex)
             build_tree(slice_project_vectors, slice_project_names, args.numtrees, outfile)
     else:
         tree = AnnoyIndex(project_vectors.shape[1])
@@ -88,7 +88,7 @@ if __name__=='__main__':
                                           project_names,
                                           int(args.treefile.split('-')[1]),
                                           int(args.treefile.split('-')[2]))
-        for sliceindex in range(25):
+        for sliceindex in range(75, args.sliceprop):
             test_project_vectors, test_project_names = get_slices(project_vectors,
                                                                   project_names,
                                                                   args.sliceprop,
