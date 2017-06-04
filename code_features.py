@@ -1,4 +1,4 @@
-#features.py
+from __future__ import division
 import datetime
 import numpy
 from collections import Counter
@@ -44,7 +44,7 @@ def get_math_blocks(project_blockcounts):
     return get_average_counts(project_blockcounts, math_set)
 
 def get_controls_blocks(project_blockcounts):
-    return get_average_blockcounts(project_blockcounts, {'controls_if': 0, 'controls_forEach': 0 , 'controls_while': 0, 'controls_choose': 0})
+    return get_average_counts(project_blockcounts, {'controls_if': 0, 'controls_forEach': 0 , 'controls_while': 0, 'controls_choose': 0})
 
 def get_classes(project_othercounts):
     class_set = {'TableArrangement', 'DatePicker', 'Canvas',
