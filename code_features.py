@@ -2,6 +2,19 @@ from __future__ import division
 import datetime
 import numpy
 from collections import Counter
+import ujson
+
+blocks_by_category = ujson.load(open('blocks_by_category.json'))
+top_blocks = set(ujson.load(open('top_200_blocks.json')).keys())
+
+summarystats = set(['local_vars', 'global_vars', 'procedures',
+'procedure_params', 'orphan', 'toplevel', 'media_assets', 'numscreens', 'strings'])
+
+components = set([u'component_SQLite', u'component_Sharing', u'component_FusiontablesControl', u'component_VideoPlayer', u'component_TextBox', u'component_GyroscopeSensor', u'component_TinyWebDB', u'component_CheckBox', u'component_Twitter', u'component_AccelerometerSensor', u'component_NxtLightSensor', u'component_BarcodeScanner', u'component_DigitalRead', u'component_AdMobInterstitial', u'component_UdooArduino',
+u'component_mrSoundMeter', u'component_Button', u'component_MIOIOUltrasonidos', u'component_GameClient', u'component_NxtTouchSensor', u'component_UsbAccessory', u'component_Texting', u'component_Image', u'component_SpeechRecognizer', u'component_PasswordTextBox', u'component_Slider', u'component_TextToSpeech', u'component_Web', u'component_FirebaseDB', u'component_NxtColorSensor', u'component_ListView', u'component_AdMob',
+u'component_DatePicker', u'component_TimePicker', u'component_Notifier', u'component_Label', u'component_ImagePicker', u'component_NxtUltrasonicSensor', u'component_TinyDB', u'component_BluetoothServer', u'component_OrientationSensor', u'component_ProximitySensor', u'component_EmailPicker', u'component_PhoneCall', u'component_NxtSoundSensor', u'component_Player', u'component_mrPlayer', u'component_Voting', u'component_LinkedDataListPicker',
+u'component_ContactPicker', u'component_NearField', u'component_KitchenSink', u'component_NxtDirectCommands', u'component_WebViewer', u'component_GoogleCloudMessaging', u'component_BluetoothClient', u'component_mrSound', u'component_TableArrangement', u'component_SoundRecorder', u'component_Clock', u'component_Canvas', u'component_ListPicker', u'component_ActivityStarter', u'component_Camera', u'component_VerticalArrangement', u'component_LinkedData',
+u'component_Spinner', u'component_Sound', u'component_HorizontalArrangement', u'component_BLE', u'component_File', u'component_Camcorder', u'component_Pedometer', u'component_PhoneNumberPicker', u'component_YandexTranslate', u'component_LocationSensor', u'component_NxtDrive'])
 
 def normalizeDict(d, n):
     '''normalizes dictionary values by n'''
@@ -27,25 +40,32 @@ def get_average_counts(project_counts, filterSet=None):
                 relative_counts[key] += project_counts[project][key]
     return normalizeDict(relative_counts, len(project_counts))
 
+# Blocks
 def get_all_blocks(project_blockcounts):
     return get_average_counts(project_blockcounts)
 
-def get_math_blocks(project_blockcounts):
-    math_set = {'math_divide', 'math_cos', 'math_format_as_decimal',
-               'math_neg', 'math_trig', 'math_floor', 'math_random_float',
-                'math_number', 'math_on_list', 'math_round', 'math_tan',
-                'math_multiply', 'math_atan2', 'math_convert_angles',
-                'math_random_int', 'math_compare', 'math_random_set_seed',
-                'math_ceiling', 'math_subtract', 'math_single', 'math_power',
-                'math_abs', 'math_is_a_number', 'math_division',
-                'math_convert_number', 'math_add',
-                'logic_boolean', 'logic_compare', 'logic_false',
-                'logic_negate', 'logic_operation','logic_or'}
-    return get_average_counts(project_blockcounts, math_set)
+def get_top_blocks(project_blockcounts):
+    return get_average_counts(project_blockcounts, top_blocks)
 
-def get_controls_blocks(project_blockcounts):
-    return get_average_counts(project_blockcounts, {'controls_if': 0, 'controls_forEach': 0 , 'controls_while': 0, 'controls_choose': 0})
+def get_blocks_by_category(categories):
+    bc = set()
+    for category in categories:
+        bc.update(blocks_by_category[category])
+    def helper(project_blockcounts):
+        return get_average_counts(project_blockcounts, bc)
+    return helper
 
+# OtherCounts
+def get_all_othercounts(project_othercounts):
+    return get_average_counts(project_othercounts)
+
+def get_noncomponents(project_othercounts):
+    return get_average_counts(project_othercounts, summarystats)
+
+def get_components(project_othercounts):
+    return get_average_counts(project_othercounts, components)
+
+# Misc
 def get_classes(project_othercounts):
     class_set = {'TableArrangement', 'DatePicker', 'Canvas',
                  'CheckBox', 'Web', 'Clock', 'BluetoothServer', 'ActivityStarter',
