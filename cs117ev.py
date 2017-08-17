@@ -1,38 +1,45 @@
 from __future__ import division
 import ujson
 import numpy as np
+import sys
 
-SIM = 0.03
-print SIM
+simthresh = int(sys.argv[1])
+
+hypnon = ujson.load(open('user_hypnontutorial_projects{0}.json'.format(simthresh)))
+hypnonids = {user: set(['_'.join(project.split('_')[:2]) for project in hypnon[user]]) for user in hypnon}
 
 manual = ujson.load(open('cs117annotated.json'))
+for k in ['original', 'unoriginal']:
+    manual[k] = set(manual[k])
 
-hypnon = ujson.load(open('user_hypnontutorial_projects.json'))
-hypnon = {user: set(['_'.join(project.split('_')[:2]) for project in hypnon[user]]) for user in hypnon}
+manual_all = manual['original'].union(manual['unoriginal'])
 
-false_original = set()
-false_unoriginal = set()
+hyp_original = set()
+hyp_unoriginal = set()
 
-cd = np.loadtxt('cs117_tutsim.npytxt') # distances between cs117 projects and tutorials
 project_names = ujson.load(open('cs117_project_names.json'))
 
-tutorial_unoriginal = set()
-for i, project in enumerate(project_names):
-    if cd[i].min() <= SIM:
-        tutorial_unoriginal.add(project)
-
-for user in hypnon:
-    for project in hypnon[user]:
+# original
+for user in hypnonids:
+    for project in hypnonids[user]:
         userproject = user+'-'+project
-        if userproject in manual['unoriginal']:
-            false_original.add(userproject)
+        if userproject in manual_all:
+            hyp_original.add(userproject)
 
-for userproject in manual['original']:
+# unoriginal
+for userproject in manual_all:
     user = userproject[:5]
     project = userproject[6:]
-    if project not in hypnon[user] or project in tutorial_unoriginal:
-        false_unoriginal.add(userproject)
+    if project not in hypnonids[user]:
+        hyp_unoriginal.add(userproject)
 
-print 1-len(false_original)/len(manual['unoriginal'])
-print 1-len(false_unoriginal)/len(manual['original'])
-print 1-(len(false_unoriginal)+len(false_original))/(len(manual['unoriginal'])+len(manual['original']))
+true_original = len(manual['original'].intersection(hyp_original))
+true_unoriginal = len(manual['unoriginal'].intersection(hyp_unoriginal))
+print 'True original', true_original
+print 'True unoriginal', true_unoriginal
+
+precision = true_original/len(hyp_original)
+recall = true_original/len(manual['original'])
+
+print 'Recall', recall
+print 'Precision', precision

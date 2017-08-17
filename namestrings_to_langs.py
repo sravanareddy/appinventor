@@ -4,6 +4,7 @@ to predict language of user."""
 import langid
 from collections import defaultdict, Counter
 import ujson
+import codecs
 
 def extract_namestrings(user_summary):
     """get list of variable names and strings from all projects
@@ -51,8 +52,15 @@ def get_user_langs(summaryfile):
                 print '*',
             else:
                 langlist = langid.rank(' '.join(tokens))
-                user_langs[userid] = langlist[0][0] if langlist[0][0]!='la' else langlist[1][0]
-                print user_langs[userid],
+                if langlist[0][0] == 'la':
+                    user_langs[userid] = langlist[1][0]
+                    #if len(tokens)<100:
+                    #    print ' '.join(tokens)
+                else:
+                    user_langs[userid] = langlist[0][0]
+                    if user_langs[userid]=='da':
+                        print userid
+                #print user_langs[userid],
 
         print ctr
         ctr+=1
@@ -60,7 +68,23 @@ def get_user_langs(summaryfile):
     print 'Ignored', len(ignored), 'users with too few tokens'
     return user_langs
 
+def verify():
+    test_users = ujson.load(open('testusers.json'))
+    ctr = 0
+    o = codecs.open('annotations.txt', 'w', 'utf-8')
+    filtered = ujson.load(open('user_hypnontutorial_projects3.json'))
+    for line in open('user_project_summaries.json'):
+        summaries = ujson.loads(line)
+        for userid in summaries:
+            if userid in test_users:
+                filtered_summaries = {projectid: summaries[userid][projectid] for projectid in summaries[userid] if projectid in filtered[userid]}
+                tokens = extract_namestrings(filtered_summaries)
+                o.write(userid+' '+test_users[userid]+' '+' '.join(tokens)+'\n\n')
+
+        ctr+=1
+
 if __name__=='__main__':
     user_langs = get_user_langs('user_project_summaries.json')
-    with open('user_inferredlangs.json', 'w') as o:
-        ujson.dump(user_langs, o, indent=0)
+    #with open('user_inferredlangs.json', 'w') as o:
+    #    ujson.dump(user_langs, o, indent=0)
+    #verify()
